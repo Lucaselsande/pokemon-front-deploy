@@ -11,7 +11,7 @@ const Deatil = () => {
 
     useEffect(() => {
         try {
-            axios(`http://localhost:3001/pokemon/${id}`)
+            axios(`/pokemon/${id}`)
             .then(({ data }) => {
                 if (data.name) {
                     setPokemon(data);

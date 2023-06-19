@@ -13,7 +13,7 @@ export const SearchPokeName = (name) => {
    }
    // peticion al server para traer el pokemon
    try {
-      const URL = 'http://localhost:3001/pokemon/?name=' + name;
+      const URL = '/pokemon/?name=' + name;
       return async (dispatch) => {
          const { data } = await axios.get(URL)
          return dispatch({
@@ -28,7 +28,7 @@ export const SearchPokeName = (name) => {
 
 export const allPokemons = () => {
    try {
-      const URL = 'http://localhost:3001/pokemon';
+      const URL = '/pokemon';
       return async (dispatch) => {
          const { data } = await axios.get(URL)
          return dispatch({
@@ -43,7 +43,7 @@ export const allPokemons = () => {
 
 export const allTypes = () => {
    try {
-      const URL = 'http://localhost:3001/types';
+      const URL = '/types';
       return async (dispatch) => {
          const { data } = await axios.get(URL)
          return dispatch({
@@ -73,7 +73,7 @@ export const createNumberTypes = (number) => {
 export const crearPokemon = (pokemonData) => {
    return async (dispatch) => {
       try {
-         const { data } = await axios.post('http://localhost:3001/pokemon/', pokemonData);
+         const { data } = await axios.post('/pokemon/', pokemonData);
          return dispatch(allPokemons());
       } catch (error) {
          console.log(error.message);
@@ -85,7 +85,7 @@ export const destroy = (id) => {
    console.log(id)
    return async (dispatch) => {
       try {
-         const { data } = await axios.delete(`http://localhost:3001/delete/${id}`);
+         const { data } = await axios.delete(`/delete/${id}`);
          //con la peticion elimino por completo el pokemon de la db y con el dispatch quito la carta
          dispatch(removePokemon(id))
          window.alert('Pokemon destruido definitivamente ')
