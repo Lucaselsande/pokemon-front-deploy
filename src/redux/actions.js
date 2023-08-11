@@ -1,61 +1,78 @@
-import { ADD_FAV, REMOVE_FAV, FILTER, AGREGAR, CREAR, POKE_NAME, ALL_POKEMONS, REMOVE_POKEMON, ALL_TYPES, NUMBER_TYPES } from "./actions-type";
+import { ADD_FAV, REMOVE_FAV, FILTER, DB_POKEMONS, CREAR, POKE_NAME, ALL_POKEMONS, REMOVE_POKEMON, ALL_TYPES, NUMBER_TYPES } from "./actions-type";
 import axios from "axios";
 
 
-// return {type: POKE_NAME, payload: name}
-export const SearchPokeName = (name) => {
-   // si en el search no busco ningun pokemon muestro todos
+export const SearchPokeName = (name,setError) => {
    if (!name) {
-      return ({
+      setError(false)
+     return {
+       type: POKE_NAME,
+       payload: 'data',
+     };
+   }
+ 
+   return async (dispatch) => {
+     try {
+       const URL = '/pokemon/?name=' + name;
+       const response = await axios.get(URL);
+       setError(false)
+       return dispatch({
          type: POKE_NAME,
-         payload: 'data',
-      });
-   }
-   // peticion al server para traer el pokemon
-   try {
-      const URL = '/pokemon/?name=' + name;
-      return async (dispatch) => {
-         const { data } = await axios.get(URL)
-         return dispatch({
-            type: POKE_NAME,
-            payload: data,
-         });
-      };
-   } catch (error) {
-      window.alert('Pokemon no encontrado')
-   }
-};
+         payload: response.data,
+       });
+     } catch (error) {
+       if (error.response && error.response.data && error.response.data.message) {
+         let errorMessage = error.response.data.message;
+         setError(errorMessage)
+         // window.alert(errorMessage);
+       } else {
+         window.alert('Error: '+ error.message);
+       }
+     }
+   };
+ };
+ 
 
-export const allPokemons = () => {
-   try {
+ export const allPokemons = () => {
       const URL = '/pokemon';
       return async (dispatch) => {
-         const { data } = await axios.get(URL)
-         return dispatch({
-            type: ALL_POKEMONS,
-            payload: data,
-         });
+         try {
+            const { data } = await axios.get(URL);
+            return dispatch({
+               type: ALL_POKEMONS,
+               payload: data,
+            });
+         } catch (error) {
+            if (error.response && error.response.data && error.response.data.message) {
+               const errorMessage = error.response.data.message;
+               window.alert(errorMessage);
+            } else {
+               window.alert('Error: ' + error.message);
+            }
+         }
       };
-   } catch (error) {
-      window.alert('Error con el server')
-   }
 };
 
+
 export const allTypes = () => {
-   try {
-      const URL = '/types';
-      return async (dispatch) => {
-         const { data } = await axios.get(URL)
+   const URL = '/types';
+   return async (dispatch) => {
+      try {
+      const { data } = await axios.get(URL)
          return dispatch({
             type: ALL_TYPES,
             payload: data,
          });
          ;
-      };
-   } catch (error) {
-      window.alert('Error con el server')
-   }
-
+      } catch (error) {
+         if (error.response && error.response.data && error.response.data.message) {
+            const errorMessage = error.response.data.message;
+            window.alert(errorMessage);
+         } else {
+            window.alert('Error: ' + error.message);
+         }
+      }
+   };
 };
 
 export const removePokemon = (id) => {
@@ -76,21 +93,30 @@ export const crearPokemon = (pokemonData) => {
          const { data } = await axios.post('/pokemon/', pokemonData);
          return dispatch(allPokemons());
       } catch (error) {
-         console.log(error.message);
+         if (error.response && error.response.data && error.response.data.message) {
+            const errorMessage = error.response.data.message;
+            window.alert(errorMessage);
+         } else {
+            window.alert('Error: ' + error.message);
+         }
       }
    };
 };
 
 export const destroy = (id) => {
-   console.log(id)
    return async (dispatch) => {
       try {
-         const { data } = await axios.delete(`/delete/${id}`);
+         await axios.delete(`/delete/${id}`);
          //con la peticion elimino por completo el pokemon de la db y con el dispatch quito la carta
          dispatch(removePokemon(id))
          window.alert('Pokemon destruido definitivamente ')
       } catch (error) {
-         console.log(error.message);
+         if (error.response && error.response.data && error.response.data.message) {
+            const errorMessage = error.response.data.message;
+            window.alert(errorMessage);
+         } else {
+            window.alert('Error: ' + error.message);
+         }
       }
    };
 };
@@ -107,4 +133,28 @@ export const removeFav = (id) => {
       type: REMOVE_FAV,
       payload: id,
    });
+};
+
+export const dbPokemons = () => {
+   return {
+      type: DB_POKEMONS
+   };
+};
+
+
+
+export const ModifyPoke = (data) => {
+   return async () => {
+      try {
+         const response = await axios.put(`/modify/`,data);
+         window.alert(response.data.message)
+      }catch (error) {
+         if (error.response && error.response.data && error.response.data.message) {
+            const errorMessage = error.response.data.message;
+            window.alert(errorMessage);
+         } else {
+            window.alert('Error: ' + error.message);
+         }
+      }
+   };
 };

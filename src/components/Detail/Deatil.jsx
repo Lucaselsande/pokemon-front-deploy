@@ -10,23 +10,23 @@ const Deatil = () => {
     //traigo el pokemon por id, podria modularizarlo
 
     useEffect(() => {
-        try {
-            axios(`/pokemon/${id}`)
-            .then(({ data }) => {
-                if (data.name) {
-                    setPokemon(data);
-                } else {
-                    window.alert('No hay pokemon con ese ID');
-                }
-            });
-            return setPokemon({})
-        } catch (error) {
-            window.alert(error.message)
-        }
-        
-        ;
-    }, [id])
-    
+        const getPokeById = async () => {
+           try {
+              const { data } = await axios.get(`/pokemon/${id}`);
+                 setPokemon(data);
+           } catch (error) {
+            console.log(error)
+              if (error.response && error.response.data && error.response.data.message) {
+                 window.alert(error.response.data.message);
+              } else {
+                 window.alert('Error: ' + error.message);
+              }
+           }
+        };
+        getPokeById()
+     }, [id]);
+     
+
     return (
         <div className={style.pokemonDetails}>
             <div className={style.textContainer}>

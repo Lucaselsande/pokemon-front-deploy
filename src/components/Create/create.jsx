@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import imagen from '../../imagen/imagen.jpg'
-import imagen2 from '../../imagen/imagen2.jpg'
 import { useDispatch, useSelector } from "react-redux"
 import { crearPokemon, createNumberTypes } from "../../redux/actions"
 import validationStats from "../../validations/validationStats"
@@ -15,13 +14,13 @@ const Create = () => {
   const dispatch = useDispatch()
   const allTypes = useSelector(state => state.allTypes)
   const numberTypes = useSelector(state => state.numberTypes)
+  const allPokemons = useSelector(state => state.PokeSinFiltro)
 
   // declaro la cantidad maxima de types por pokemon
   const numberOfTypes = [1, 2, 3, 4]
   // asigno la cantidad de types que yo quiera
   let selectedNumber = numberOfTypes.slice(0, numberTypes)
   let aux = 1
-  let suma = 1
 
   const [pokemon, setpokemon] = useState({
     name: "",
@@ -43,9 +42,6 @@ const Create = () => {
   const [statsErr, setStatsErr] = useState({})
   const [errors, setErrors] = useState('')
 
-
-
-
   const handlechange = (event) => {
     // pregunto si se puede convertir a numero por que el event.target.name de types es numero
     if (Number(event.target.name)) {
@@ -64,7 +60,7 @@ const Create = () => {
   useEffect(() => {
     //valido typ siempre que se actualizan sus valores
     let { errors, arrayTypes } = validationTypes(typ)
-    suma = arrayTypes
+    // suma = arrayTypes
     setTypeErr(errors)
     setpokemon({
       ...pokemon,
@@ -74,7 +70,7 @@ const Create = () => {
 
   useEffect(() => {
     // valido los stats del pokemon siempre que cambien
-    setStatsErr(validationStats(pokemon))
+    setStatsErr(validationStats(pokemon,allPokemons))
   }, [pokemon])
 
   useEffect(() => {
@@ -90,11 +86,14 @@ const Create = () => {
 
   }, [statsErr, typeErr])
 
+  useEffect(() => {
+    dispatch(createNumberTypes(1))
+  }, [])
+
   const handleNumberTypes = (event) => {
     // a esto le hice un dispatch para que se actualize, trate de hacerlo con un useEfect pero no me fue bien
     dispatch(createNumberTypes(event.target.value))
   }
-
 
   const handleSubmit = async (event) => {
     // si hay errores no se mandan los datos para crear
@@ -129,10 +128,15 @@ const Create = () => {
 
           <div>
             <label>hp: </label>
+            <input type="text" name="hp" onChange={handlechange} />
+            <p>{statsErr ? statsErr[2] : ''}</p>
+          </div>
+          {/* <div>
+            <label>hp: </label>
             <input type="range" name="hp" min="1" max="150" onChange={handlechange} />
             {pokemon.hp}
             <p>{statsErr ? statsErr[2] : ''}</p>
-          </div>
+          </div> */}
 
           <div>
             <label>attack: </label>
@@ -191,7 +195,7 @@ const Create = () => {
                 return (
                   <div key={elem}>
                     <select name={aux++} onChange={handlechange}>
-                      <option value='type'>undefined</option>
+                      <option value='undefined'>undefined</option>
                       {// muestro todos los types de pokemons
                         allTypes.map(elem => {
                           return (
@@ -218,13 +222,7 @@ const Create = () => {
 
         <button type="submit" >Crear pokemon</button>
       </form>
-
-
-
     </div>
-
-
-
   )
 }
 export default Create;
